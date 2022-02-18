@@ -13,6 +13,3 @@ This is part of a bachelor-thesis in Industrial Engineering [3BA, ELO-ICT]
 ## Credits
 
 - Abdellah Touhafi
-
-test
-test 2
