@@ -1,0 +1,29 @@
+\documentclass[10pt,a4paper,oneside,fleqn]{memoir} % compile this file to generate report
+
+\usepackage{beamerarticle} % to ignore beamer instructions
+\usepackage{pifont}
+%% Style files
+\input{styles/myStyleFiles} % include the necessary style files
+
+%% Include only
+% Warning: compile your entire project before using \includeonly. Otherwise, references to not-included files will not be established
+% \includeonly{file1,file2,...} will recompile these files only and thus reduce compilation time; all references to other files remain intact.
+
+%% Title page
+\input{extra/titleInfo} % specify the content of the title page
+
+\begin{document}
+    \maketitle % make the title page
+%	\layout{} % remove comment to show page layout dimensions
+	\frontmatter % chapters not yet numbered + roman page numbers
+	    \tableofcontents\newpage
+	\mainmatter % chapters numbered + Arabic page numbers
+	    \include{chapters/ThesisIntroduction}
+	    \include{chapters/CurrentState}
+	    \include{chapters/Documentation}
+	    \include{chapters/Todo}
+	\backmatter % chapters no longer numbered
+	    \nocite{*} % includes all entries in the bib file in the bibliography
+		\printbibliography
+		%\listoftodos
+\end{document}
