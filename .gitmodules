@@ -1,0 +1,3 @@
+[submodule "src/server/chirpstack-docker"]
+	path = src/server/chirpstack-docker
+	url = https://github.com/brocaar/chirpstack-docker
