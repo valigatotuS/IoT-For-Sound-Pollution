@@ -8,7 +8,7 @@ WIFI_MAC = ubinascii.hexlify(machine.unique_id()).upper()
 GATEWAY_ID = WIFI_MAC[:6] + "FFFE" + WIFI_MAC[6:12]
 
 # server settings
-SERVER = 'eu1.cloud.thethings.network'
+SERVER = '192.168.1.101'
 PORT = 1700
 
 # clock settings (synchronization with Network Time Protocol)
@@ -16,8 +16,8 @@ NTP = "pool.ntp.org"
 NTP_PERIOD_S = 3600
 
 # wifi settings
-WIFI_SSID = 'VOO-294307'#'WiFi-2.4-1C18'#
-WIFI_PASS = 'FUWGERFQ'#'wnuxdz5j32k4j'#
+WIFI_SSID = 'WiFi-2.4-1C18'#'VOO-294307'#
+WIFI_PASS = 'wnuxdz5j32k4j'#'FUWGERFQ'#
 
 # LoRa settings for EU868
 LORA_FREQUENCY = 868100000

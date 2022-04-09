@@ -13,6 +13,7 @@ class NoiseNode:
     """
 
     def __init__(self):
+        self.mode = "OTAA"
         self.lora = None
         self.dev_eui = None
         self.app_eui = None
@@ -23,7 +24,8 @@ class NoiseNode:
         # initialize LoRa in LORAWAN mode.
         self.lora = LoRa(mode=LoRa.LORAWAN, region=LoRa.EU868)
         # create an OTA authentication params
-        self.dev_eui = binascii.unhexlify('AABBCCDDEEFF7778')
+        # print(binascii.hexlify(self.lora.mac()).decode('utf-8').upper())
+        self.dev_eui = self.lora.mac() #binascii.unhexlify('AABBCCDDEEFF7778')#
         self.app_eui = binascii.unhexlify('70B3D57EF0003BFD')
         self.app_key = binascii.unhexlify('36AB7625FE770B6881683B495300FFD6')
         # set the 3 default channels to the same frequency (must be before sending the OTAA join request)
@@ -31,11 +33,12 @@ class NoiseNode:
         self.lora.add_channel(1, frequency=config.LORA_FREQUENCY, dr_min=0, dr_max=5)
         self.lora.add_channel(2, frequency=config.LORA_FREQUENCY, dr_min=0, dr_max=5)
         # join a network using OTAA
-        self.lora.join(activation=LoRa.OTAA, auth=(self.dev_eui, self.app_eui, self.app_key), timeout=0, dr=config.LORA_NODE_DR)
+        self.lora.join(activation=LoRa.OTAA, auth=(self.app_eui, self.app_key), timeout=0, dr=config.LORA_NODE_DR)
         # wait until the module has joined the network
         while not self.lora.has_joined():
             time.sleep(2.5)
             print('Not joined yet...')
+        print('Joined')
         # remove all the non-default channels
         for i in range(3, 16):
             self.lora.remove_channel(i)

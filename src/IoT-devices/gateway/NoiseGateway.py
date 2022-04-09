@@ -254,6 +254,7 @@ class NoiseGateway:
             self.txnb += 1
             lora.init(
                 mode=LoRa.LORA,
+                region=LoRa.EU868,
                 frequency=self.frequency,
                 bandwidth=self.bw,
                 sf=self.sf,
@@ -345,6 +346,7 @@ class NoiseGateway:
 
         self.lora.init(
             mode=LoRa.LORA,
+            region=LoRa.EU868,
             frequency=frequency,
             bandwidth=self._dr_to_bw(datarate),
             sf=self._dr_to_sf(datarate),

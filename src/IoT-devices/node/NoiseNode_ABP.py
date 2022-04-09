@@ -9,10 +9,11 @@ import config_node as config
 
 class NoiseNode:
     """
-    Noise Node, set up by default for Noise Gateway in OTAA mode.
+    Noise Node, set up by default for Noise Gateway in ABP mode.
     """
 
     def __init__(self):
+        self.mode = "ABP"
         self.lora = None
         self.dev_addr = None
         self.nwk_swkey = None
@@ -23,14 +24,15 @@ class NoiseNode:
         # initialize LoRa in LORAWAN mode.
         self.lora = LoRa(mode=LoRa.LORAWAN, region=LoRa.EU868)
         # create an ABP authentication params
-        self.dev_addr = struct.unpack(">l", binascii.unhexlify('2601147D'))[0]
+        self.dev_addr = struct.unpack(">l", binascii.unhexlify('260BF086'))[0]
+        self.dev_eui = self.lora.mac() #binascii.hexlify(self.lora.mac()).decode('utf-8').upper()
         self.nwk_swkey = binascii.unhexlify('3C74F4F40CAEA021303BC24284FCF3AF')
         self.app_swkey = binascii.unhexlify('0FFA7072CC6FF69A102A0F39BEB0880F')
         # set the 3 default channels to the same frequency (must be before sending the OTAA join request)
         self.lora.add_channel(0, frequency=config.LORA_FREQUENCY, dr_min=0, dr_max=5)
         self.lora.add_channel(1, frequency=config.LORA_FREQUENCY, dr_min=0, dr_max=5)
         self.lora.add_channel(2, frequency=config.LORA_FREQUENCY, dr_min=0, dr_max=5)
-        # join a network using ABP (Activation By Personalization)
+        # join a network using ABP (Anctivation By Personalization)
         self.lora.join(activation=LoRa.ABP, auth=(self.dev_addr, self.nwk_swkey, self.app_swkey))
         # remove all the non-default channels
         for i in range(3, 16):
