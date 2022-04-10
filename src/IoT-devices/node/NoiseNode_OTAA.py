@@ -65,17 +65,19 @@ class NoiseNode:
                 str(message).format(*args)
                 ))
 
-    def send_packet(self, payload=None, rx_ON=True):
+    def send_packet(self, payload='A', rx_ON=True):
         self.s.setsockopt(socket.SOL_LORA, socket.SO_DR, self.datarate)
         self.s.setblocking(False)
-        self.s.send(bytes([1, 2, 3]))
-        if(rx_ON)
-            self.s.settimeout(3.0) # configure a timeout value of 3 seconds
+        self._log('Sending packet: ' + payload)
+        self.s.send(payload) # payload size-limit is 242 bytes long
+        if(rx_ON):
+            self.s.settimeout(8) # configure a timeout value of >5 seconds (default rx slot in TTN)
             try:
-              rx_pkt = s.recv(64)   # get the packet received (if any)
-              self._log(rx_pkt)
+              rx_pkt = self.s.recv(64)   # get the packet received (if any)
+              self._log('Received packet: ' + str(rx_pkt))
             except socket.timeout:
               self._log('No packet received')
+        self.s.setblocking(True)
 
     # def send_lorawan_packets(self, count=50):
     #     for i in range (count):
