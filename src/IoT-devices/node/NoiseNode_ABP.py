@@ -55,3 +55,6 @@ class NoiseNode:
             if rx:
                 print('Received: {}, on port: {}'.format(rx, port))
             time.sleep(20)
+
+##To do:
+# merge ABP and OTAA in a sigle script.
