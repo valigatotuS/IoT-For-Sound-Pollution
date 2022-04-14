@@ -5,6 +5,7 @@ import socket
 import binascii
 import struct
 import time, utime
+import pycom
 
 class NoiseNode:
     """
@@ -12,6 +13,7 @@ class NoiseNode:
     """
 
     def __init__(self, debug, app_eui, app_key, frequency, datarate):
+        pycom.heartbeat(False)
         self.debug = debug
         self.mode = "OTAA"
         self.OTA_params = {'app_eui': app_eui,'app_key': app_key}
@@ -27,33 +29,57 @@ class NoiseNode:
 
     def start(self):
         self._log("Booting noisenode in " + self.mode + " mode")
-        # initialize LoRa in LORAWAN mode.
-        self.lora = LoRa(mode=LoRa.LORAWAN, region=LoRa.EU868)
-        # erase previous lora settings in ram
-        self.lora.nvram_erase()
-        # create an OTA authentication params
+
+        self.lora = LoRa(mode=LoRa.LORAWAN, region=LoRa.EU868)  # initialize LoRa in LORAWAN mode.
+        self.lora.nvram_erase()                                 # erase previous lora settings in ram
+
+        # setting the OTA authentication params
         self.dev_eui = self.lora.mac()
-        self.app_eui = self.OTA_params['app_eui']#binascii.unhexlify('70B3D57EF0003BFD')
-        self.app_key = self.OTA_params['app_key']#binascii.unhexlify('36AB7625FE770B6881683B495300FFD6')
-        # set the 3 default channels to the same frequency (must be before sending the OTAA join request)
-        [self.lora.add_channel(i, frequency=self.frequency, dr_min=0, dr_max=5) for i in range(3)]
+        self.app_eui = self.OTA_params['app_eui']
+        self.app_key = self.OTA_params['app_key']
+
+        self.add_channels()                                     # setting the LoRa channels
+        self.join_network_server_OTAA()                         # joining the network server with Over The Air Activation
+        self.create_socket()                                    # creating lora socket
+        self.lora.nvram_save()                                  # saving lora config
+
+    def join_network_server_OTAA(self):
+        self.status_led('joining')
         # join a network using OTAA
         self.lora.join(activation=LoRa.OTAA, auth=(self.app_eui, self.app_key), timeout=0, dr=4)#config.LORA_NODE_DR)
         # wait until the module has joined the network
         while not self.lora.has_joined():
-            time.sleep(2.5)
+            time.sleep(3)
             self._log('Not joined yet...')
         self._log('Node joined the network')
-        # remove all the non-default channels
-        [self.lora.remove_channel(i) for i in range(3, 16)]
-        # create a LoRa socket
+        self.status_led('joined')
+        time.sleep(3)
+
+
+    def create_socket(self):
         self.s = socket.socket(socket.AF_LORA, socket.SOCK_RAW)
-        # set the LoRaWAN data rate
         self.s.setsockopt(socket.SOL_LORA, socket.SO_DR, self.datarate)
-        # make the socket non-blocking
         self.s.setblocking(True)
-        # save lora config
-        self.lora.nvram_save()
+
+    def add_channels(self):
+        [self.lora.add_channel(i, frequency=self.frequency, dr_min=0, dr_max=5) for i in range(3)]  # setting the 3 default channels to the same frequency (must be before sending the OTAA join request)
+        [self.lora.remove_channel(i) for i in range(3, 16)]     # removing all the non-default channels
+
+    def status_led(self, mode:str):
+        if self.debug:
+            if mode == 'joining':
+                pycom.rgbled(0xff0000) #red
+            elif mode == 'joined':
+                pycom.rgbled(0x00ff00) #green
+                time.sleep(0.5)
+                pycom.rgbled(False)
+            elif mode == 'sending':
+                for i in range(3):
+                    pycom.rgbled(0x0000ff) #blue
+                    time.sleep(0.1)
+                    pycom.rgbled(False)
+                    time.sleep(0.1)
+
 
     def _log(self, message, *args):
         """
@@ -66,18 +92,27 @@ class NoiseNode:
                 ))
 
     def send_packet(self, payload='A', rx_ON=True):
+        self.status_led('sending')
         self.s.setsockopt(socket.SOL_LORA, socket.SO_DR, self.datarate)
         self.s.setblocking(False)
-        self._log('Sending packet: ' + payload)
+        self._log('Sending packet...')# + payload)
         self.s.send(payload) # payload size-limit is 242 bytes long
         if(rx_ON):
-            self.s.settimeout(8) # configure a timeout value of >5 seconds (default rx slot in TTN)
+            self.s.settimeout(8) # configure a timeout value for rx slot in TTN
             try:
-              rx_pkt = self.s.recv(64)   # get the packet received (if any)
-              self._log('Received packet: ' + str(rx_pkt))
+                rx_pkt = self.s.recv(64)   # get the packet received (if any)
+                self._log('Received packet: ' + str(rx_pkt))
             except socket.timeout:
-              self._log('No packet received')
-        self.s.setblocking(True)
+                self._log('No packet received')
+            # finally:
+            #     self._log(self.lora.stats())
+        #self.s.setblocking(True)
+
+    def send_sound(self):
+        self._log('Recolting sound sensor data...')
+        data = [1,2,3,4,1,2,3,4]
+        pkt = struct.pack('>%sb' % (len(data)), *data)
+        self.send_packet(pkt, rx_ON=False)
 
     # def send_lorawan_packets(self, count=50):
     #     for i in range (count):

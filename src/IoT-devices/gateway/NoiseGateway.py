@@ -81,7 +81,9 @@ class NoiseGateway:
     connecting to the Internet.
     """
 
-    def __init__(self, id, frequency, datarate, ssid, password, server, port, ntp_server='pool.ntp.org', ntp_period=3600):
+    def __init__(self, debug, id, frequency, datarate, ssid, password, server, port, ntp_server='pool.ntp.org', ntp_period=3600):
+        self.debug = debug
+
         self.id = id
         self.server = server
         self.port = port
@@ -452,8 +454,8 @@ class NoiseGateway:
         """
         Outputs a log message to stdout.
         """
-
-        print('[{:>10.3f}] {}'.format(
-            utime.ticks_ms() / 1000,
-            str(message).format(*args)
-            ))
+        if self.debug==True:
+            print('[{:>10.3f}] {}'.format(
+                utime.ticks_ms() / 1000,
+                str(message).format(*args)
+                ))

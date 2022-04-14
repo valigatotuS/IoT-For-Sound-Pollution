@@ -5,6 +5,7 @@ from NoiseGateway import NoiseGateway
 
 if __name__ == '__main__':
     noisegw = NoiseGateway(
+        debug=config.DEBUG,
         id=config.GATEWAY_ID,
         frequency=config.LORA_FREQUENCY,
         datarate=config.LORA_GW_DR,
