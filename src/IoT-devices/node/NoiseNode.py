@@ -12,48 +12,42 @@ class NoiseNode:
     Noise Node, set up by default for a Noise Gateway in OTAA mode.
     """
 
-    def __init__(self, debug, app_eui, app_key, frequency, datarate):
+    def __init__(self, debug, activation_mode, frequency, datarate, activation_keys):
         pycom.heartbeat(False)
         self.debug = debug
-        self.mode = "OTAA"
-        self.OTA_params = {'app_eui': app_eui,'app_key': app_key}
+        self.activation_mode = activation_mode
+        self.activation_keys = activation_keys
         self.lora = None
         self.frequency = frequency
         self.datarate = datarate
-
-        self.dev_eui = None
-        self.app_eui = None
-        self.app_key = None
-
         self.s = None
 
     def start(self):
-        self._log("Booting noisenode in " + self.mode + " mode")
+        self._log("Booting noisenode in " + self.activation_mode + " mode")
 
         self.lora = LoRa(mode=LoRa.LORAWAN, region=LoRa.EU868)  # initialize LoRa in LORAWAN mode.
         self.lora.nvram_erase()                                 # erase previous lora settings in ram
-
-        # setting the OTA authentication params
-        self.dev_eui = self.lora.mac()
-        self.app_eui = self.OTA_params['app_eui']
-        self.app_key = self.OTA_params['app_key']
-
         self.add_channels()                                     # setting the LoRa channels
-        self.join_network_server_OTAA()                         # joining the network server with Over The Air Activation
+        self.join_network_server()                              # joining the network server with self.activation_mode
         self.create_socket()                                    # creating lora socket
         self.lora.nvram_save()                                  # saving lora config
 
-    def join_network_server_OTAA(self):
+    def join_network_server(self):
         self.status_led('joining')
-        # join a network using OTAA
-        self.lora.join(activation=LoRa.OTAA, auth=(self.app_eui, self.app_key), timeout=0, dr=4)#config.LORA_NODE_DR)
-        # wait until the module has joined the network
-        while not self.lora.has_joined():
+        # join a network
+        if self.activation_mode == 'OTAA':
+            self.lora.join(activation=LoRa.OTAA, auth=(self.activation_keys['app_eui'], self.activation_keys['app_key']), timeout=0, dr=4)#config.LORA_NODE_DR)
+
+            # wait until the module has joined the network
+            while not self.lora.has_joined():
+                time.sleep(3)
+                self._log('Not joined yet...')
+            self._log('Node joined the network')
+            self.status_led('joined')
             time.sleep(3)
-            self._log('Not joined yet...')
-        self._log('Node joined the network')
-        self.status_led('joined')
-        time.sleep(3)
+
+        elif self.activation_mode == 'ABP':
+            self.lora.join(activation=LoRa.ABP, auth=(self.activation_keys['dev_addr'], self.activation_keys['nwk_swkey'], self.activation_keys['app_swkey']), timeout=0, dr=4)
 
 
     def create_socket(self):
@@ -95,17 +89,16 @@ class NoiseNode:
         self.status_led('sending')
         self.s.setsockopt(socket.SOL_LORA, socket.SO_DR, self.datarate)
         self.s.setblocking(False)
-        self._log('Sending packet...')# + payload)
+        self._log('Sending packet...')
         self.s.send(payload) # payload size-limit is 242 bytes long
         if(rx_ON):
             self.s.settimeout(8) # configure a timeout value for rx slot in TTN
             try:
                 rx_pkt = self.s.recv(64)   # get the packet received (if any)
                 self._log('Received packet: ' + str(rx_pkt))
+                self._log(self.lora.stats())
             except socket.timeout:
                 self._log('No packet received')
-            # finally:
-            #     self._log(self.lora.stats())
         #self.s.setblocking(True)
 
     def send_sound(self):
@@ -113,6 +106,16 @@ class NoiseNode:
         data = [1,2,3,4,1,2,3,4]
         pkt = struct.pack('>%sb' % (len(data)), *data)
         self.send_packet(pkt, rx_ON=False)
+
+    def simulate_sensor_data_transmission(self):
+        i = 11
+        while True:
+            self._log('Recolting dummy sensor data...')
+            i = (i + 1) % 10 # dummy simulation
+            data = [i]
+            pkt = struct.pack('>%sb' % (len(data)), *data)
+            self.send_packet(pkt, rx_ON=False)
+            time.sleep(60)
 
     # def send_lorawan_packets(self, count=50):
     #     for i in range (count):
