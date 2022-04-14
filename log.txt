@@ -1,8 +1,0 @@
-09/04/2022 22:00, VQ => Device identification over OTAA + Uplink packets via LoRaWan
-10/04/2022 23:18, VQ => Downlink packets via LoRaWan with OTAA
-11/04/2022 23:00, VQ => ...
-
-left to do: 
-- activating ADR
-- database : telegraf
-- data visualisation : grafana
