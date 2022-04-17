@@ -1,6 +1,6 @@
 """Main code for a Noise-node sending LoRaWAN-packets in OTAA mode"""
 
-import config
+import config_node as config
 from NoiseNode import NoiseNode
 
 if __name__ == '__main__':

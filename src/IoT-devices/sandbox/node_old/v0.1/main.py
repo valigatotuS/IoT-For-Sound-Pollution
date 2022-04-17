@@ -1,15 +1,12 @@
 """Main code for a Noise-node sending LoRaWAN-packets in OTAA mode"""
 
-import config
+import config_node as config
 from NoiseNode import NoiseNode
 
 if __name__ == '__main__':
     noisenode = NoiseNode(
         debug = config.DEBUG,
         # LoRa parameters
-        lora_mode = config.LORA_MODE,
-        lora_region = config.LORA_REGION,
-        lora_class = config.LORA_CLASS,
         activation_mode = config.LORAWAN_ACTIVATION_MODE,
         frequency = config.LORA_FREQUENCY,
         datarate = config.LORA_NODE_DR,

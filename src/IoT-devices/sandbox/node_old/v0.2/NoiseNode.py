@@ -9,12 +9,7 @@ import pycom
 
 class NoiseNode:
     """
-    IoT-node.
-
-    Setup:
-        * µC:                   FiPy
-        * Communication:        LoRa
-        * Networking-protocol:  LoRaWAN
+    Noise Node, set up by default for a Noise Gateway in OTAA mode.
     """
 
     def __init__(self, debug, lora_mode, lora_region, lora_class, activation_mode, frequency, datarate, activation_keys):
@@ -33,15 +28,15 @@ class NoiseNode:
     def start(self):
         self._log("Booting noisenode in " + self.activation_mode + " mode")
 
-        self.lora = LoRa(
-            mode        =self.lora_mode,
-            region      =self.lora_region,
-            device_class=self.lora_class,
-            # adr         =True, # not rightly configured yet for working (setting up channels?, gateway?)
-            )
-        #self.lora.init(mode=LoRa.LORAWAN,region=LoRa.EU868,tx_retries=4)
-        # self.lora.init(mode        =LoRa.LORAWAN, region      =LoRa.EU868, frequency   =self.frequency, bandwidth   =LoRa.BW_125KHZ, sf          =7, preamble    =8, coding_rate =LoRa.CODING_4_5,tx_iq       =True,tx_retries  =4)
+        # self.lora = LoRa(
+        #     mode        =self.lora_mode,
+        #     region      =self.lora_region,
+        #     device_class=self.lora_class,
+        #     adr         =True,
+        #     tx_retries  =5)
+        self.lora = LoRa(mode=LoRa.LORAWAN, region=LoRa.EU868)  # initialize LoRa in LORAWAN mode.
 
+        # self.lora.init(LoRa.LORAWAN, region=LoRa.EU868)# frequency=self.frequency, tx_power=5, bandwidth=LoRa.BW_125KHZ, sf=7, preamble=8, coding_rate=LoRa.CODING_4_5, power_mode=LoRa.ALWAYS_ON, tx_iq=False, rx_iq=False, adr=False, public=True, tx_retries=2, device_class=LoRa.CLASS_A)
         self.lora.nvram_erase()                                             # erase previous lora settings in ram
         self.add_channels()                                                 # setting the LoRa channels
         self.join_network_server()                                          # joining the network server with self.activation_mode
@@ -49,9 +44,6 @@ class NoiseNode:
         self.lora.nvram_save()                                              # saving lora config
 
     def join_network_server(self):
-        """
-        Joins the network-server over lora.
-        """
         self.status_led('joining')
         # join a network
         if self.activation_mode == 'OTAA':
@@ -69,9 +61,6 @@ class NoiseNode:
 
 
     def create_socket(self, confirmed=True):
-        """
-        Creates and configures the lora-socket.
-        """
         self.s = socket.socket(socket.AF_LORA, socket.SOCK_RAW)             # creating the lora-socket
         self.s.setsockopt(socket.SOL_LORA, socket.SO_DR, self.datarate)     # setting the right socket-parameters
 
@@ -79,7 +68,7 @@ class NoiseNode:
             self.s.setsockopt(socket.SOL_LORA, socket.SO_CONFIRMED, confirmed)  # asking confirmation of transmitted packets to the network server
             self.lora.callback(trigger=( LoRa.RX_PACKET_EVENT |             # lora event handler for transmission/reception/transmission_fail
                                     LoRa.TX_PACKET_EVENT |
-                                    LoRa.TX_FAILED_EVENT  ), handler=self.lora_callback)
+                                    LoRa.TX_FAILED_EVENT  ), handler=self.lora_cb)
 
         self.s.setblocking(False)                                           # opening the socket
 
@@ -87,10 +76,7 @@ class NoiseNode:
         [self.lora.add_channel(i, frequency=self.frequency, dr_min=0, dr_max=5) for i in range(3)]  # setting the 3 default channels to the same frequency (must be before sending the OTAA join request)
         [self.lora.remove_channel(i) for i in range(3, 16)]                 # removing all the non-default channels
 
-    def lora_callback(self, lora):
-        """
-        Callback for lora-events.
-        """
+    def lora_cb(self, lora):
         events = self.lora.events()
         if events & LoRa.RX_PACKET_EVENT:                               # raised for every received packet
             if self.s is not None:
@@ -103,19 +89,7 @@ class NoiseNode:
         if events & LoRa.TX_FAILED_EVENT:                               # raised after the number of tx_retries configured have been performed and no ack is received
             self._log("sending Failed")
 
-
-    def send_uplink(self, pkt):
-        """
-        Sends a packet via LoRa.
-        """
-        self.status_led('sending')
-        self._log('Sending packet...')
-        self.s.send(pkt)
-
     def status_led(self, mode:str):
-        """
-        Blinks internal led based on status.
-        """
         if self.debug:
             if mode == 'joining':
                 pycom.rgbled(0xff0000) #red
@@ -132,7 +106,7 @@ class NoiseNode:
 
     def _log(self, message, *args):
         """
-        Outputs a log message to console.
+        Outputs a log message to stdout.
         """
         if self.debug==True:
             print('[{:>10.3f}] {}'.format(
@@ -141,15 +115,14 @@ class NoiseNode:
                 ))
 
 #--------------- IN DEVELOPMENT -----------------------------------------------------------------------------#
-    def simulate_sensor_data_transmission_v2(self):
-        i = 10
-        while True:
-            self._log('Recolting dummy sensor data...')
-            i = (i + 1) % 10 # dummy simulation
-            data = [i]
-            pkt = struct.pack('>%sb' % (len(data)), *data)
-            self.send_uplink(pkt)
-            time.sleep(20)
+
+    def _send_uplink(self, payload):
+        self.create_socket()
+        self.status_led('sending')
+        self.s.setsockopt(socket.SOL_LORA, socket.SO_DR, self.datarate)
+        self.s.setblocking(False)
+        self._log('Sending packet...')
+        self.s.send(payload)
 
     def send_packet(self, payload='A', rx_ON=True):
         self.status_led('sending')
@@ -169,6 +142,8 @@ class NoiseNode:
 
     _LORA_PKG_FORMAT = "BB%ds"
     _LORA_PKG_ACK_FORMAT = "BBB"
+
+
 
     def send_confirmed_packet(self):
             self.status_led('sending')
@@ -201,6 +176,16 @@ class NoiseNode:
             data = [i]
             pkt = struct.pack('>%sb' % (len(data)), *data)
             self.send_packet(pkt, rx_ON=False)
+            time.sleep(20)
+
+    def simulate_sensor_data_transmission_v2(self):
+        i = 10
+        while True:
+            self._log('Recolting dummy sensor data...')
+            i = (i + 1) % 10 # dummy simulation
+            data = [i]
+            pkt = struct.pack('>%sb' % (len(data)), *data)
+            self._send_uplink(pkt)
             time.sleep(20)
 
     def send_confp(self):
