@@ -92,12 +92,12 @@ class NoiseNode:
         Callback for lora-events.
         """
         events = self.lora.events()
-        if events & LoRa.RX_PACKET_EVENT:                               # raised for every received packet
+        if events & LoRa.RX_PACKET_EVENT:                                   # raised for every received packet
             if self.s is not None:
                 frame, port = self.s.recvfrom(512)
                 self._log("port: %s, frame:%s" % (port, frame))
 
-        if events & LoRa.TX_PACKET_EVENT:                               # raised as soon as the packet transmission cycle ends
+        if events & LoRa.TX_PACKET_EVENT:                                   # raised as soon as the packet transmission cycle ends
             self._log("tx_time_on_air: %s ms, @dr %s, trials: %s" % (self.lora.stats().tx_time_on_air, self.lora.stats().sftx, self.lora.stats().tx_trials))
 
         if events & LoRa.TX_FAILED_EVENT:                               # raised after the number of tx_retries configured have been performed and no ack is received
@@ -141,6 +141,26 @@ class NoiseNode:
                 ))
 
 #--------------- IN DEVELOPMENT -----------------------------------------------------------------------------#
+    def array2packet(self, array:list):
+        pkt = struct.pack('>%sb' % (len(array)), *array)
+        return pkt
+
+    def simulate_sensor_data_transmission_v3(self, delay=20):
+        while True:
+            data = self.sensor_data()
+            pkt  = self.array2packet(data)
+            self.send_uplink(pkt)
+            time.sleep(delay) # implement non blocking
+
+    def sensor_data(self):
+        """
+        Return sound data via the micro-sensor.
+        """
+        self._log('Recolting dummy sensor data...')
+        data = [260]*242      # pass sensor implementation...
+        return data
+
+#--------------- OLD CODE -----------------------------------------------------------------------------#
     def simulate_sensor_data_transmission_v2(self):
         i = 10
         while True:
@@ -233,42 +253,3 @@ class NoiseNode:
                                 LoRa.TX_FAILED_EVENT  ), handler=self.lora_cb)
 
         time.sleep(4)                                                   # this timer is important and caused me some trouble ...
-
-
-
-    # def send_lorawan_packets(self, count=50):
-    #     for i in range (count):
-    #         pkt = b'PKT #' + bytes([i])
-    #         print('Sending:', pkt)
-    #         self.s.send(pkt)
-    #         time.sleep(4)
-    #         rx, port = self.s.recvfrom(256)
-    #         if rx:
-    #             print('Received: {}, on port: {}'.format(rx, port))
-    #         time.sleep(20)
-    # _LORA_PKG_FORMAT = "BB%ds"
-    # _LORA_PKG_ACK_FORMAT = "BBB"
-    # DEVICE_ID = 0x01
-    #
-    # def send_greetings(self):
-    #     msg = "Hello, Device 1 Here"
-    #     pkg = struct.pack(_LORA_PKG_FORMAT % len(msg), DEVICE_ID, len(msg), msg)
-    #     self.s.send(pkg)
-    #
-    #     # Wait for the response from the gateway. NOTE: For this demo the device does an infinite loop for while waiting the response. Introduce a max_time_waiting for you application
-    #     waiting_ack = True
-    #     self._log("opening rx slot")
-    #     while(waiting_ack):
-    #         recv_ack = self.s.recv(256)
-    #         if (len(recv_ack) > 0):
-    #             device_id, pkg_len, ack = struct.unpack(_LORA_PKG_ACK_FORMAT, recv_ack)
-    #             self._log(device_id)
-    #             if (device_id == DEVICE_ID):
-    #                 if (ack == 200):
-    #                     waiting_ack = False
-    #                     # If the uart = machine.UART(0, 115200) and os.dupterm(uart) are set in the boot.py this print should appear in the serial port
-    #                     print("ACK")
-    #                 else:
-    #                     waiting_ack = False
-    #                     # If the uart = machine.UART(0, 115200) and os.dupterm(uart) are set in the boot.py this print should appear in the serial port
-    #                     print("Message Failed")
