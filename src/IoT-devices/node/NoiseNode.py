@@ -4,7 +4,7 @@ from network import LoRa
 import socket
 import binascii
 import struct
-import time, utime
+import time, utime, uos
 import pycom
 
 class NoiseNode:
@@ -29,6 +29,7 @@ class NoiseNode:
         self.frequency      = frequency
         self.datarate       = datarate
         self.s              = None
+        self.tx_stats = {"tx_conf":0}
 
     def start(self):
         self._log("Booting noisenode in " + self.activation_mode + " mode")
@@ -39,14 +40,12 @@ class NoiseNode:
             device_class=self.lora_class,
             # adr         =True, # not rightly configured yet for working (setting up channels?, gateway?)
             )
-        #self.lora.init(mode=LoRa.LORAWAN,region=LoRa.EU868,tx_retries=4)
-        # self.lora.init(mode        =LoRa.LORAWAN, region      =LoRa.EU868, frequency   =self.frequency, bandwidth   =LoRa.BW_125KHZ, sf          =7, preamble    =8, coding_rate =LoRa.CODING_4_5,tx_iq       =True,tx_retries  =4)
 
-        self.lora.nvram_erase()                                             # erase previous lora settings in ram
+        # self.lora.nvram_erase()                                             # erase previous lora settings in ram
         self.add_channels()                                                 # setting the LoRa channels
         self.join_network_server()                                          # joining the network server with self.activation_mode
         self.create_socket()                                                # creating lora socket
-        self.lora.nvram_save()                                              # saving lora config
+        # self.lora.nvram_save()                                              # saving lora config
 
     def join_network_server(self):
         """
@@ -55,7 +54,7 @@ class NoiseNode:
         self.status_led('joining')
         # join a network
         if self.activation_mode == 'OTAA':
-            self.lora.join(activation=LoRa.OTAA, auth=(self.activation_keys['app_eui'], self.activation_keys['app_key']), timeout=0, dr=4)#config.LORA_NODE_DR)
+            self.lora.join(activation=LoRa.OTAA, auth=(self.activation_keys['app_eui'], self.activation_keys['app_key']), timeout=0, dr=4) #implement DR var
 
             while not self.lora.has_joined():                               # wait until the module has joined the network
                 time.sleep(3)
@@ -99,6 +98,7 @@ class NoiseNode:
 
         if events & LoRa.TX_PACKET_EVENT:                                   # raised as soon as the packet transmission cycle ends
             self._log("tx_time_on_air: %s ms, @dr %s, trials: %s" % (self.lora.stats().tx_time_on_air, self.lora.stats().sftx, self.lora.stats().tx_trials))
+            self.tx_stats["tx_conf"] += 1
 
         if events & LoRa.TX_FAILED_EVENT:                               # raised after the number of tx_retries configured have been performed and no ack is received
             self._log("sending Failed")
@@ -145,19 +145,37 @@ class NoiseNode:
         pkt = struct.pack('>%sb' % (len(array)), *array)
         return pkt
 
+    def simulate_sensor_data_transmission_v4(self, count=100, delay=20):
+        data = 0
+        self.tx_stats["tx_conf"] = 0
+        for i in range(count):
+            data = self.sensor_data_dB(sound_level=data)
+            pkt  = self.array2packet([data])
+            self.send_uplink(pkt)
+            time.sleep(delay) 
+        self._log("%i/%i packets were succesfully sent & confirmed" % (self.tx_stats["tx_conf"], count))
+
     def simulate_sensor_data_transmission_v3(self, delay=20):
         while True:
-            data = self.sensor_data()
+            data = self.sensor_data_fft()
             pkt  = self.array2packet(data)
             self.send_uplink(pkt)
             time.sleep(delay) # implement non blocking
 
-    def sensor_data(self):
+    def sensor_data_fft(self):
         """
-        Return sound data via the micro-sensor.
+        Return sound-spectrum-analysis from micro. (dummy test)
         """
-        self._log('Recolting dummy sensor data...')
-        data = [260]*242      # pass sensor implementation...
+        self._log('Recolting dummy sensor data (fft)...')
+        data = [uos.urandom(1)[0] for i in range(20)]      # pass sensor implementation...
+        return data
+
+    def sensor_data_dB(self, sound_level):
+        """
+        Return sound-level in dB from micro. (dummy-test)
+        """
+        self._log('Recolting dummy sensor data (sound-level)...')
+        data = (sound_level + 1) % 10      # pass sensor implementation...
         return data
 
 #--------------- OLD CODE -----------------------------------------------------------------------------#

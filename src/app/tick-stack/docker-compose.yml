@@ -21,8 +21,8 @@ services:
       - LoraNetwork
     ports:
       - "8086:8086"
-    #volumes:
-    #  - ./data/influxdb:/var/lib/influxdb 
+    volumes:
+     - ./data/influxdb:/var/lib/influxdb 
     environment:
       - INFLUXDB_DB=maBase 
       - INFLUXDB_ADMIN_USER=admin
