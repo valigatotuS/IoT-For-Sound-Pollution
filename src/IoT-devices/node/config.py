@@ -24,3 +24,8 @@ DEV_ADDR = struct.unpack(">l", binascii.unhexlify('260BF086'))[0]
 DEV_EUI = None
 NWK_SWKEY = binascii.unhexlify('3C74F4F40CAEA021303BC24284FCF3AF')
 APP_SWKEY = binascii.unhexlify('0FFA7072CC6FF69A102A0F39BEB0880F')
+
+# deepsleep
+DEEPSLEEP_TIME = 0                      # 0 to disable deepsleep
+# confirmed transmission (handshake)
+CONFIRMED_TX = True

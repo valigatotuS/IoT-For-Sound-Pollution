@@ -16,8 +16,8 @@ NTP = "pool.ntp.org"
 NTP_PERIOD_S = 3600
 
 # wifi settings
-WIFI_SSID = 'WiFi-2.4-1C18'#'VOO-294307'#
-WIFI_PASS = 'wnuxdz5j32k4j'#'FUWGERFQ'#
+WIFI_SSID = 'VOO-294307'#'WiFi-2.4-1C18'#
+WIFI_PASS = 'FUWGERFQ'#'wnuxdz5j32k4j'#
 
 # LoRa settings for EU868
 LORA_FREQUENCY = 868100000
