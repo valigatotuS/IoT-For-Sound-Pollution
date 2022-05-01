@@ -1,0 +1,42 @@
+{
+  "type": "panel",
+  "name": "Waterfall Panel",
+  "id": "auxmoney-waterfall-panel",
+  "info": {
+    "description": "A waterfall panel for a single time-series",
+    "author": {
+      "name": "auxmoney.com",
+      "url": "https://github.com/auxmoney"
+    },
+    "keywords": [
+      "panel",
+      "waterfall"
+    ],
+    "logos": {
+      "small": "img/logo.svg",
+      "large": "img/logo.svg"
+    },
+    "links": [
+      {
+        "name": "Website",
+        "url": "https://github.com/auxmoney/grafana-waterfall-panel"
+      },
+      {
+        "name": "License",
+        "url": "https://github.com/auxmoney/grafana-waterfall-panel/blob/main/LICENSE"
+      }
+    ],
+    "screenshots": [
+      {
+        "name": "Waterfall example",
+        "path": "img/auxmoney-waterfall-panel.png"
+      }
+    ],
+    "version": "1.0.6",
+    "updated": "2021-07-12"
+  },
+  "dependencies": {
+    "grafanaDependency": ">=7.0",
+    "plugins": []
+  }
+}

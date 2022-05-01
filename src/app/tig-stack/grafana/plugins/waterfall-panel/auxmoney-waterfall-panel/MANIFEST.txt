@@ -1,0 +1,35 @@
+
+-----BEGIN PGP SIGNED MESSAGE-----
+Hash: SHA512
+
+{
+  "manifestVersion": "2.0.0",
+  "signatureType": "community",
+  "signedByOrg": "auxmoney",
+  "signedByOrgName": "auxmoney",
+  "plugin": "auxmoney-waterfall-panel",
+  "version": "1.0.6",
+  "time": 1626072773667,
+  "keyId": "7e4d0c6a708866e7",
+  "files": {
+    "plugin.json": "192d37aa32fb124c265b1c1017ed8a055b12543a24ced50be5f6d8af0bbeb83f",
+    "module.js.map": "a6f758c0a3f91e7a56db9c38689beb080ba3d5534294ef44ff6245ba1aaf0805",
+    "LICENSE": "fec9cfd33a40e06e818710301a85d44750c191ddb4e91c17d9ef916c1999d5e9",
+    "module.js.LICENSE.txt": "0d8f66cd4afb566cb5b7e1540c68f43b939d3eba12ace290f18abc4f4cb53ed0",
+    "README.md": "c5eba7254c2a79c3fa55f6ee48273f2ef56868ffef946113135360da2418d20d",
+    "CHANGELOG.md": "151d1bc12dcb475fb0635212034960327cafb89db563480e3d38eb5483c1e7f3",
+    "module.js": "e571287b9df1f26dacbb19234b5f9772c924a7ef1cc3de218dbaf4ac571e1b21",
+    "img/auxmoney-waterfall-panel.png": "f39fd7e8b6ffd7c3d7ddaed5b8f4ac82be626af31eda7282562cc1e499632b82",
+    "img/logo.svg": "7a1a6805ebe4a0cd7d848fe5cb4627af25a1d7f9f5b137c1cc136faaa40e8df7"
+  }
+}
+-----BEGIN PGP SIGNATURE-----
+Version: OpenPGP.js v4.10.1
+Comment: https://openpgpjs.org
+
+wqEEARMKAAYFAmDr5sUACgkQfk0ManCIZueosQIJAdbebaGQ0tCb3JEmKQ13
+aDM3lnKjP8QGInkXWOyQYJME19pfjSqhQF6lKvcX0fzqGaDTYWRTTzlLGxBU
+xOOW2CaAAgisZTOvqIx/rv79wc1ItOTYpj85TlgtX9UvqkvFn+KXJu5PHKnO
+nKnMWAbetwwxLTgOPOHLxd9EaszUQKQwdaf4Jg==
+=cBJ/
+-----END PGP SIGNATURE-----
