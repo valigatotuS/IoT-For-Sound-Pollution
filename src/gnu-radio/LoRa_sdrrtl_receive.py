@@ -75,7 +75,7 @@ class LoRa_sdrrtl_receive(gr.top_block, Qt.QWidget):
         ##################################################
         self.samp_rate = samp_rate = 1e6
         self.freq_slider = freq_slider = 868e6
-        self.channel_freq = channel_freq = 868.2e6
+        self.channel_freq = channel_freq = 868.1e6
 
         ##################################################
         # Blocks

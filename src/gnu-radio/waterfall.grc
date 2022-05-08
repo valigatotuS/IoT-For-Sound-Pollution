@@ -39,7 +39,7 @@ blocks:
     gui_hint: ''
     label: Channel frequency
     type: real
-    value: 868.2e6
+    value: 868.1e6
   states:
     bus_sink: false
     bus_source: false
