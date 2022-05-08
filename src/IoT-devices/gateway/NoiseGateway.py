@@ -127,7 +127,7 @@ class NoiseGateway:
         Starts the LoRaWAN nano gateway.
         """
 
-        self._log('Starting LoRaWAN nano gateway with id: {}', self.id)
+        self._log('Starting LoRaWAN Noise gateway with id: {}', self.id)
 
         # setup WiFi as a station and connect
         self.wlan = WLAN(mode=WLAN.STA)
@@ -245,16 +245,18 @@ class NoiseGateway:
         if events & LoRa.RX_PACKET_EVENT:
             self.rxnb += 1
             self.rxok += 1
-            rx_data = self.lora_sock.recv(256)
+            # listen to LoRa RF
+            rx_data = self.lora_sock.recv(256)          
             stats = lora.stats()
             packet = self._make_node_packet(rx_data, self.rtc.now(), stats.rx_timestamp, stats.sfrx, self.bw, stats.rssi, stats.snr)
             packet = self.frequency_rounding_fix(packet, self.frequency)
-            self._push_data(packet)
-            self._log('Received packet: {}', packet)
+            # forward packet via UDP 
+            self._push_data(packet)                     
+            self._log('Received packet: {}', packet)    
             self.rxfw += 1
         if events & LoRa.TX_PACKET_EVENT:
             self.txnb += 1
-            lora.init(
+            lora.init(                                  # initialiase LoRa radio
                 mode=LoRa.LORA,
                 region=LoRa.EU868,
                 frequency=self.frequency,
