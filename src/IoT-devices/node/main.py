@@ -12,18 +12,18 @@ if __name__ == '__main__':
         lora_class      = config.LORA_CLASS,
         activation_mode = config.LORAWAN_ACTIVATION_MODE,
         frequency       = config.LORA_FREQUENCY,
-        datarate        = config.LORA_NODE_DR,
-        # Activation keys (OTA & ABP)
+        datarate        = config.LORA_NODE_DR,      
         activation_keys = {'app_eui': config.APP_EUI,'app_key': config.APP_KEY, 'dev_addr': config.DEV_ADDR, 'dev_eui': config.DEV_EUI, 'nwk_swkey': config.NWK_SWKEY, 'app_swkey': config.APP_SWKEY},
-        # Deepsleep time
-        deepsleep_time  = config.DEEPSLEEP_TIME, 
-        # Confirmed transmission
-        confirmed_tx    = config.CONFIRMED_TX
+        confirmed_tx    = config.CONFIRMED_TX,
+
+        deepsleep_time  = config.DEEPSLEEP_TIME,  
         )
 
-    noisenode.start()       # starting the lorawan node
-    # noisenode.simulate_dB_transmission()
+    noisenode.start()       # starting the LoRaWAN Noise Node
 
-    if noisenode.debug: input('You may now press ENTER to enter the REPL') # REPL inputs
-    else:               noisenode.simulate_dB_transmission()
+    if noisenode.debug: 
+        #noisenode.simulate_dB_transmission()
+        input('You may now press ENTER to enter the REPL') # REPL inputs
+    else:   
+        noisenode.simulate_dB_transmission()
     
