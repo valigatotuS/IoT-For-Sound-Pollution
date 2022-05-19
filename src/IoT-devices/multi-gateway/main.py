@@ -1,8 +1,7 @@
+import time, machine, pycom
+from config import WIFI_SSID, WIFI_PASS
 from network import WLAN
-import time
-import machine
 from machine import RTC
-import pycom
 
 print('\nStarting LoRaWAN concentrator')
 # Disable Hearbeat
@@ -27,7 +26,7 @@ machine.callback(trigger = (machine.PYGATE_START_EVT | machine.PYGATE_STOP_EVT |
 print('Connecting to WiFi...',  end='')
 # Connect to a Wifi Network
 wlan = WLAN(mode=WLAN.STA)
-wlan.connect(ssid='WiFi-2.4-1C18', auth=(WLAN.WPA2, 'wnuxdz5j32k4j'))
+wlan.connect(ssid=WIFI_SSID, auth=(WLAN.WPA2, WIFI_PASS))
 
 while not wlan.isconnected():
     print('.', end='')
