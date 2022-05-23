@@ -27,7 +27,7 @@ options:
     bus_sink: false
     bus_source: false
     bus_structure: null
-    coordinate: [8, 8]
+    coordinate: [335, 26]
     rotation: 0
     state: enabled
 
@@ -44,7 +44,7 @@ blocks:
     bus_sink: false
     bus_source: false
     bus_structure: null
-    coordinate: [0, 284.0]
+    coordinate: [45, 24]
     rotation: 0
     state: true
 - name: freq_slider
@@ -65,7 +65,7 @@ blocks:
     bus_sink: false
     bus_source: false
     bus_structure: null
-    coordinate: [8, 140.0]
+    coordinate: [202, 26]
     rotation: 0
     state: true
 - name: samp_rate
@@ -77,7 +77,7 @@ blocks:
     bus_sink: false
     bus_source: false
     bus_structure: null
-    coordinate: [192, 12.0]
+    coordinate: [516, 27]
     rotation: 0
     state: enabled
 - name: qtgui_freq_sink_x_0
@@ -98,7 +98,7 @@ blocks:
     autoscale: 'False'
     average: '1.0'
     axislabels: 'True'
-    bw: samp_rate
+    bw: samp_rate*4
     color1: '"blue"'
     color10: '"dark blue"'
     color2: '"red"'
@@ -157,7 +157,7 @@ blocks:
     bus_sink: false
     bus_source: false
     bus_structure: null
-    coordinate: [648, 288.0]
+    coordinate: [416, 197]
     rotation: 0
     state: true
 - name: qtgui_waterfall_sink_x_0
@@ -218,7 +218,7 @@ blocks:
     bus_sink: false
     bus_source: false
     bus_structure: null
-    coordinate: [648, 440.0]
+    coordinate: [416, 349]
     rotation: 0
     state: true
 - name: rtlsdr_source_0_0
@@ -575,7 +575,7 @@ blocks:
     bus_sink: false
     bus_source: false
     bus_structure: null
-    coordinate: [273, 260]
+    coordinate: [73, 202]
     rotation: 0
     state: enabled
 

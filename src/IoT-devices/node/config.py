@@ -4,8 +4,8 @@ import binascii, struct
 from network import LoRa
 
 
-DEBUG = False                                 # debug mode (printing the node logs  & giving status with internal-led)
-DEEPSLEEP_TIME = 45*60                            # time node is sleeping during between transmission,  0 to disable deepsleep
+DEBUG = True                                 # debug mode (printing the node logs  & giving status with internal-led)
+DEEPSLEEP_TIME = 0                           # time node is sleeping during between transmission,  0 to disable deepsleep
 
 LORA_CHANNELS   = {0:868100000, 1:868300000, 2:868500000, 3:867100000, 4:867300000, 5:867500000, 6:867700000, 7:867900000, 8:868800000}
 
@@ -16,10 +16,13 @@ LORA_PARAMETERS = {
     "mode":         LoRa.LORAWAN,             # LoRaWAN as networking protocol (v1.0.2)
     "activation":   'OTAA',                   # activation mode (ABP/OTAA)
     "channel":      LORA_CHANNELS[0],         # channel for transmission (868 MHz sub-channel)
-    "dr":           5,                        # datarate number defining the SF & BW (look-up online for the table)
-    "adr":          True,                     # adaptive datarate (it is tuning P_tx, SF & BW for transmission optimalisation)
-    "confirmed_tx": True,                     # confirmed transmission (requesting a confirmed-downlink to the network server)
-    "retries":      2                         # number of retries allowed for an confirmed transmission (limited to 2*)
+    "cr":           LoRa.CODING_4_5,          # coding rate, In LoRa.LORAWAN mode, only adr, public, tx_retries and device_class are used. All the other params will be ignored as they are handled by the LoRaWAN stack directly.
+    "dr":           5,                        # datarate number defining the SF & BW (look-up online for the table) of the uplink messages
+    "join_dr":      0,                        # datarate of the join-request
+    "join_timeout": 25000,                    # max. time during which the join-procedure can happen
+    "adr":          False,                     # adaptive datarate (it is tuning P_tx, SF & BW for transmission optimalisation)
+    "confirmed_tx": False,                     # confirmed transmission (requesting a confirmed-downlink to the network server)
+    "retries":      2                         # number of retries allowed for an confirmed transmission (!! not working, stays at 2or3...)
     }
 
 # LoRa session keys

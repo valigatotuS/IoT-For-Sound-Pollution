@@ -1,3 +1,5 @@
+# code is based on Pycom's example for the PyGate multi-channel gateway
+
 import time, machine, pycom
 from config import WIFI_SSID, WIFI_PASS
 from network import WLAN

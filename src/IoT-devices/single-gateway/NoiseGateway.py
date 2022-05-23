@@ -1,3 +1,4 @@
+# code is based on Pycom/libraries/single-channel-gateway
 """ FiPy LoRaWAN Noise Gateway"""
 
 import errno

@@ -139,7 +139,7 @@ class LoRa_sdrrtl_receive(gr.top_block, Qt.QWidget):
             1024, #size
             firdes.WIN_BLACKMAN_hARRIS, #wintype
             freq_slider, #fc
-            samp_rate, #bw
+            samp_rate*4, #bw
             "", #name
             1
         )
@@ -194,7 +194,7 @@ class LoRa_sdrrtl_receive(gr.top_block, Qt.QWidget):
 
     def set_samp_rate(self, samp_rate):
         self.samp_rate = samp_rate
-        self.qtgui_freq_sink_x_0.set_frequency_range(self.freq_slider, self.samp_rate)
+        self.qtgui_freq_sink_x_0.set_frequency_range(self.freq_slider, self.samp_rate*4)
         self.qtgui_waterfall_sink_x_0.set_frequency_range(self.channel_freq, self.samp_rate*4)
         self.rtlsdr_source_0_0.set_sample_rate(self.samp_rate)
 
@@ -203,7 +203,7 @@ class LoRa_sdrrtl_receive(gr.top_block, Qt.QWidget):
 
     def set_freq_slider(self, freq_slider):
         self.freq_slider = freq_slider
-        self.qtgui_freq_sink_x_0.set_frequency_range(self.freq_slider, self.samp_rate)
+        self.qtgui_freq_sink_x_0.set_frequency_range(self.freq_slider, self.samp_rate*4)
         self.rtlsdr_source_0_0.set_center_freq(self.freq_slider, 0)
 
     def get_channel_freq(self):

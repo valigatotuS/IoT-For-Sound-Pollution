@@ -1,6 +1,6 @@
 """ Main code for a lora node tested on TTN with LoRaWAN, OTAA & ADR """
 
-import config
+import config, time
 from NoiseNode import NoiseNode
 
 if __name__ == '__main__':
@@ -12,11 +12,15 @@ if __name__ == '__main__':
         )
 
     # starting the LoRaWAN Noise Node
-    noisenode.start()
+    noisenode._log("Starting Noise Node with id: %s" % noisenode.lora_session_keys['dev_eui'])
+    noisenode.init_lora_radio()
+    noisenode.join_network_server()
 
     if noisenode.debug:
         # Entering RPL (Read Evaluate Print Loop, interactive MicroPython prompt)
-        noisenode.simulate_dB_transmission()#input('Press ENTER to enter the REPL')
+        input('Press ENTER to enter the REPL')
+
     else:
-        # Sending noise level on regular interval via LoRa (dummy data)
-        noisenode.simulate_dB_transmission()
+        # Sending noise level on regular interval via LoRa
+        noisenode.collect_sensor_data() # analog reads
+        noisenode.send_sensor_data()    # sending data, then entering deepsleep
