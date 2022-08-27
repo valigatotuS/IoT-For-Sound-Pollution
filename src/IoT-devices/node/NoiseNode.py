@@ -117,10 +117,14 @@ class NoiseNode:
     def init_channels(self):
         """ Removes and adds the right LoRa channels. """
 
+        # random channel-hopping
+        channel = self.lora_params["channel"][int((uos.urandom(1)[0] / 256)*5)]
         # setting the 3 default channels to the same frequency (must be before sending the OTAA join request) this is also removing the other channels
         [self.lora.add_channel(
-            i, frequency=self.lora_params["channel"], dr_min=0, dr_max=5) for i in range(3)]
+            i, frequency=channel, dr_min=0, dr_max=5) for i in range(3)]
         #[self.lora.remove_channel(i) for i in range(3, 16)]                         # removing all the non-default channels
+        #(struct.unpack('B',uos.urandom(1))[0] % 7) + 1 #random channel hopping
+
 
     def lora_callback(self, lora: LoRa):
         """ Callback for lora-events. """
@@ -262,7 +266,7 @@ class NoiseNode:
         for i in range(5):
             time.sleep(0.001)
             readings.append(adc())
-
+        readings += list(range(35))   # just increasing payload...
         self._log("Readings of %s were read from the analog pin." % str(readings))
         self.sensor_data['ppm']=readings
 
